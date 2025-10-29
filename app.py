@@ -11,7 +11,7 @@ students = [
 ]
 
 # =======================
-# 🏠 HOME PAGE (NAV MENU)
+# 🏠 HOME PAGE (MODERN UI)
 # =======================
 @app.route('/')
 def home():
@@ -21,47 +21,71 @@ def home():
     <head>
         <title>Student Information System</title>
         <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
             body {
-                font-family: 'Segoe UI', Arial, sans-serif;
-                background: linear-gradient(135deg, #e0f7fa, #ffffff);
-                text-align: center;
-                padding: 60px;
-            }
-            h1 { color: #222; }
-            .nav {
-                background: #007BFF;
-                padding: 15px;
-                border-radius: 10px;
-                display: inline-block;
-                margin-bottom: 40px;
-            }
-            .nav a {
-                color: white;
-                text-decoration: none;
-                margin: 0 15px;
-                font-weight: bold;
-            }
-            .nav a:hover {
-                text-decoration: underline;
+                font-family: 'Poppins', sans-serif;
+                background: linear-gradient(135deg, #b3e5fc, #e3f2fd);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
             }
             .container {
                 background: white;
-                display: inline-block;
-                padding: 40px 60px;
+                width: 500px;
                 border-radius: 20px;
-                box-shadow: 0 0 15px rgba(0,0,0,0.1);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                text-align: center;
+                padding: 40px;
+                animation: fadeIn 1s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from {opacity: 0; transform: translateY(20px);}
+                to {opacity: 1; transform: translateY(0);}
+            }
+            h1 {
+                color: #007BFF;
+                margin-bottom: 20px;
+            }
+            p {
+                color: #555;
+                margin-bottom: 30px;
+            }
+            .nav-btn {
+                display: block;
+                margin: 10px auto;
+                width: 80%;
+                padding: 15px;
+                background: #007BFF;
+                color: white;
+                text-decoration: none;
+                font-weight: 600;
+                border-radius: 10px;
+                transition: all 0.3s ease;
+            }
+            .nav-btn:hover {
+                background: #0056b3;
+                transform: scale(1.05);
+            }
+            footer {
+                margin-top: 30px;
+                font-size: 13px;
+                color: #777;
             }
         </style>
     </head>
     <body>
         <div class="container">
-            <h1>🎓 Student Information System</h1>
-            <div class="nav">
-                <a href="/students">📋 View All Students</a>
-                <a href="/add_student_form">➕ Add Student</a>
-                <a href="/search_student">🔍 Search Student</a>
-            </div>
-            <p>Welcome! Use the navigation menu above to manage student information.</p>
+            <h1>🎓 Student Info System</h1>
+            <p>Manage, view, and search students easily!</p>
+            <a href="/students" class="nav-btn">📋 View All Students</a>
+            <a href="/add_student_form" class="nav-btn">➕ Add Student</a>
+            <a href="/search_student" class="nav-btn">🔍 Search Student</a>
+            <footer>© 2025 Student Management UI</footer>
         </div>
     </body>
     </html>
@@ -73,10 +97,51 @@ def home():
 # =======================
 @app.route('/students')
 def show_students():
-    html = "<h1>📋 Student List</h1><ul>"
+    html = '''
+    <html>
+    <head>
+        <title>All Students</title>
+        <style>
+            body { font-family: Poppins, sans-serif; background: #f0f9ff; text-align: center; padding: 40px; }
+            h1 { color: #007BFF; margin-bottom: 20px; }
+            .card {
+                background: white;
+                width: 300px;
+                margin: 15px auto;
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                transition: 0.3s;
+            }
+            .card:hover { transform: scale(1.05); }
+            .card h3 { color: #333; }
+            a.btn {
+                display: inline-block;
+                margin-top: 20px;
+                text-decoration: none;
+                background: #007BFF;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 10px;
+                transition: 0.3s;
+            }
+            a.btn:hover { background: #0056b3; }
+        </style>
+    </head>
+    <body>
+        <h1>📋 Student List</h1>
+    '''
     for s in students:
-        html += f"<li><b>ID:</b> {s['id']} | <b>Name:</b> {s['name']} | <b>Age:</b> {s['age']} | <b>Grade:</b> {s['grade']} | <b>Section:</b> {s['section']}</li>"
-    html += "</ul><a href='/'>⬅ Back to Home</a>"
+        html += f'''
+        <div class="card">
+            <h3>{s['name']}</h3>
+            <p><b>Age:</b> {s['age']}</p>
+            <p><b>Grade:</b> {s['grade']}</p>
+            <p><b>Section:</b> {s['section']}</p>
+            <a href="/student/{s['id']}" class="btn">View Info</a>
+        </div>
+        '''
+    html += '<a href="/" class="btn">⬅ Back to Home</a></body></html>'
     return html
 
 # =======================
@@ -87,19 +152,38 @@ def get_student(student_id):
     student = next((s for s in students if s["id"] == student_id), None)
     if student:
         return render_template_string(f"""
-            <h1>🎯 Student Information</h1>
-            <p><b>ID:</b> {student['id']}</p>
-            <p><b>Name:</b> {student['name']}</p>
-            <p><b>Age:</b> {student['age']}</p>
-            <p><b>Grade:</b> {student['grade']}</p>
-            <p><b>Section:</b> {student['section']}</p>
-            <a href='/'>⬅ Back to Home</a>
+            <html>
+            <head>
+                <title>Student Info</title>
+                <style>
+                    body {{ font-family: Poppins; text-align: center; background: #e3f2fd; padding: 60px; }}
+                    .card {{
+                        background: white;
+                        display: inline-block;
+                        padding: 40px;
+                        border-radius: 15px;
+                        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                    }}
+                    h2 {{ color: #007BFF; }}
+                    a {{ text-decoration: none; color: white; background: #007BFF; padding: 10px 20px; border-radius: 10px; }}
+                    a:hover {{ background: #0056b3; }}
+                </style>
+            </head>
+            <body>
+                <div class="card">
+                    <h2>🎯 Student Information</h2>
+                    <p><b>ID:</b> {student['id']}</p>
+                    <p><b>Name:</b> {student['name']}</p>
+                    <p><b>Age:</b> {student['age']}</p>
+                    <p><b>Grade:</b> {student['grade']}</p>
+                    <p><b>Section:</b> {student['section']}</p>
+                    <a href='/'>⬅ Back to Home</a>
+                </div>
+            </body>
+            </html>
         """)
     else:
-        return render_template_string("""
-            <h2>❌ Student Not Found</h2>
-            <a href='/'>⬅ Back to Home</a>
-        """)
+        return "<h2>❌ Student Not Found</h2><a href='/'>⬅ Back to Home</a>"
 
 # =======================
 # 🔍 SEARCH STUDENT BY ID
@@ -110,23 +194,30 @@ def search_student():
         student_id = request.form['student_id']
         return f"<meta http-equiv='refresh' content='0; url=/student/{student_id}' />"
     html = '''
-    <h1>🔍 Search Student</h1>
-    <form method="POST">
-        <input type="number" name="student_id" placeholder="Enter Student ID" required>
-        <button type="submit">Search</button>
-    </form>
-    <br><a href="/">⬅ Back to Home</a>
-    <style>
-        body { font-family: Arial; text-align: center; margin-top: 100px; }
-        input, button { padding: 10px; margin: 5px; }
-        button { background: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-    </style>
+    <html>
+    <head>
+        <title>Search Student</title>
+        <style>
+            body { font-family: Poppins; background: #f0f9ff; text-align: center; padding: 100px; }
+            input, button { padding: 10px; margin: 5px; border-radius: 8px; border: 1px solid #007BFF; }
+            button { background: #007BFF; color: white; cursor: pointer; }
+            button:hover { background: #0056b3; }
+        </style>
+    </head>
+    <body>
+        <h1>🔍 Search Student by ID</h1>
+        <form method="POST">
+            <input type="number" name="student_id" placeholder="Enter Student ID" required>
+            <button type="submit">Search</button>
+        </form>
+        <br><a href="/">⬅ Back to Home</a>
+    </body>
+    </html>
     '''
     return render_template_string(html)
 
 # =======================
-# ➕ ADD NEW STUDENT (FORM)
+# ➕ ADD NEW STUDENT
 # =======================
 @app.route('/add_student_form', methods=['GET', 'POST'])
 def add_student_form():
@@ -136,10 +227,10 @@ def add_student_form():
     <head>
         <title>Add Student</title>
         <style>
-            body { font-family: Arial, sans-serif; background: #e3f2fd; text-align: center; padding: 40px; }
-            form { background: white; display: inline-block; padding: 20px 40px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-            input { margin: 10px; padding: 10px; width: 80%; }
-            button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+            body { font-family: Poppins; background: #e1f5fe; text-align: center; padding: 40px; }
+            form { background: white; display: inline-block; padding: 30px 50px; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+            input { margin: 10px; padding: 10px; width: 90%; border: 1px solid #007BFF; border-radius: 8px; }
+            button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; }
             button:hover { background: #45a049; }
         </style>
     </head>
@@ -173,7 +264,7 @@ def add_student_form():
     return render_template_string(html_form)
 
 # =======================
-# 🧠 MAIN ENTRY POINT
+# 🧠 RUN APP
 # =======================
 if __name__ == '__main__':
     app.run(debug=True)
